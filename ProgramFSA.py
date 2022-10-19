@@ -1,63 +1,75 @@
-import sys
 import os
 import time
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.action_chains import ActionChains
 
 from openpyxl import load_workbook
-
-
-# функция для работы дополнительных файлов после создания exe
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
 
 
 # функция проверки необходимых файлов
 def check_folders():  # Проверка на существование необходимых папок
 
-    if not os.path.exists('C:\\ProgramFSA'):  # Основная папка
-        os.mkdir('C:\\ProgramFSA')
+    if not os.path.exists(r'C:\ProgramFSA'):  # Основная папка
+        os.mkdir(r'C:\ProgramFSA')
 
-    if not os.path.exists('C:\\ProgramFSA\\Screenshot'):  # Папка скриншотов
-        os.mkdir('C:\\ProgramFSA\\Screenshot')
+    if not os.path.exists(r'C:\ProgramFSA\Screenshot'):  # Папка скриншотов
+        os.mkdir(r'C:\ProgramFSA\Screenshot')
 
-    if not os.path.exists('C:\\ProgramFSA\\File'):  # Папка для файлов выгрузки
-        os.mkdir('C:\\ProgramFSA\\File')
+    if not os.path.exists(r'C:\ProgramFSA\File'):  # Папка для файлов выгрузки
+        os.mkdir(r'C:\ProgramFSA\File')
 
     folders = ['АТМ', 'МС', 'СПК']  # Создание папок со скриншотами для различных организаций
 
     for folder in folders:
-        if not os.path.exists(f'C:\\ProgramFSA\\Screenshot\\{folder}'):
-            os.mkdir(f'C:\\ProgramFSA\\Screenshot\\{folder}')
+        if not os.path.exists(fr'C:\ProgramFSA\Screenshot\{folder}'):
+            os.mkdir(fr'C:\ProgramFSA\Screenshot\{folder}')
 
 
-# функция работы программы
-def main():
-    # Проверка существования основных папок
-    check_folders()
-
+# Запуск программы через Chrome
+def chrome(dir_drive):
     # Подключение Chrome
-    service = Service(executable_path="./chromedriver")
-
+    service = Service(executable_path=dir_drive)
     driver = webdriver.Chrome(service=service)
 
     # Уменьшение масштаба
     driver.get("chrome://settings/")
     driver.execute_script("chrome.settingsPrivate.setDefaultZoom(0.5)")
+    return main(driver)
 
+
+# Запуск программы через FireFox
+def firefox(dir_drive, head):
+    # Подключение опций
+    options = Options()
+    if head:
+        options.headless = True
+        options.add_argument('--window-size=1920,1920')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-gpu')
+
+    # Подключение FireFox
+    service = Service(executable_path=dir_drive)
+    driver = webdriver.Firefox(service=service, options=options)
+
+    # Уменьшение масштаба страницы FireFox
+    driver.get("about:preferences")
+    driver.execute_script("arguments[0].click();", driver.find_element(By.XPATH, "//*[@id='defaultZoom']"))
+    ActionChains(driver).click(driver.find_element(By.XPATH, "//*[@value='50']")).perform()
+    return main(driver)
+
+
+# функция работы программы
+def main(driver):
     driver.get("https://support.fsa.gov.ru")  # Сайт ФСА
 
-    folder = 'C:\\ProgramFSA\\File'  # Объявление папки для работы с файлами
+    folder = r'C:\ProgramFSA\File'  # Объявление папки для работы с файлами
 
     for file in os.listdir(folder):  # Перебор файлов со сведениями
         name_company = file[:3]
@@ -104,20 +116,20 @@ def main():
                 sheet.cell(row=1, column=2).value)
 
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[1]/div/div/input").send_keys(
-                sheet.cell(row=nom_str, column=1).value + " " + sheet.cell(row=nom_str,
-                                                                           column=2).value + " Зав.№" + sheet.cell(
-                    row=nom_str, column=3).value)
+                str(sheet.cell(row=nom_str, column=1).value) + " " + str(sheet.cell(row=nom_str,
+                                                                                    column=2).value) + " Зав.№" + str(
+                    sheet.cell(row=nom_str, column=3).value))
 
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[2]/div/div/input").send_keys(
-                sheet.cell(row=nom_str, column=4).value)
+                sheet.cell(row=nom_str, column=4).value.strftime('%Y-%m-%d'))
 
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[3]/div/div/input").send_keys(
                 sheet.cell(row=nom_str, column=5).value)
 
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[4]/div/div/input").send_keys(
-                sheet.cell(row=nom_str, column=1).value + " " + sheet.cell(row=nom_str,
-                                                                           column=2).value + " Зав.№" + sheet.cell(
-                    row=nom_str, column=3).value)
+                str(sheet.cell(row=nom_str, column=1).value) + " " + str(sheet.cell(row=nom_str,
+                                                                                    column=2).value) + " Зав.№" + str(
+                    sheet.cell(row=nom_str, column=3).value))
 
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[5]/div/div/input").send_keys(
                 sheet.cell(row=nom_str, column=7).value + " " + sheet.cell(row=nom_str, column=8).value)
@@ -130,9 +142,11 @@ def main():
                 sheet.cell(row=nom_str, column=11).value)
 
             # Создание скриншота
-            driver.save_screenshot("C:\\ProgramFSA\\Screenshot\\" + name_company.replace(' ', '') + "\\" + str(
-                nom_str - 4) + "_" + sheet.cell(row=nom_str, column=4).value + " " + name_company.replace(' ',
-                                                                                                          '') + ".png")
+            driver.save_screenshot('C:\\ProgramFSA\\Screenshot\\' + name_company.replace(' ', '') + '\\' + str(
+                nom_str - 4) + ' ' + str(sheet.cell(row=nom_str, column=4).value.strftime('%d.%m.%Y')) + ' ' +
+                                   name_company.replace(' ', '') + ".png")
+
+            print('Сохранение скриншота заполненного счетчика, строка:', nom_str - 4)
 
             # Проверка отправки формы
             check_str = driver.find_element(By.XPATH,
@@ -150,16 +164,35 @@ def main():
                                           driver.find_element(By.XPATH, "//*[@id='metrology-report-submit']"))
                     time.sleep(20)
 
-            # Увеличение счетчика строки для прохода по циклу
+            # Увеличение счетчика строки для прохода по строкам
             nom_str = nom_str + 1
             str_enumeration = sheet.cell(row=nom_str, column=1).value
-            print(nom_str - 5)
-
             time.sleep(20)
 
         # Закрытие файла Excel
         wb.close()
 
+    # Закрытие драйвера
+    driver.close()
+
 
 if __name__ == '__main__':
-    main()
+    # Проверка существования основных папок
+    check_folders()
+
+    dit_drive = input(r'Введите путь к драйверу("C:\Dir\geckodriver.exe"): ')
+
+    brow = input('Введите предпочитаемый браузер(chrome-1, firefox-2): ')
+    if brow == '2':
+        head_change = input('Выберите режим(Headless-1; Head-2): ')
+        if head_change == '1':
+            firefox(dit_drive, head=True)
+        elif head_change == '2':
+            firefox(dit_drive, head=False)
+        else:
+            print('Неверно выбран режим')
+    elif brow == '1':
+        chrome(dit_drive)
+    else:
+        print('Неверно выбран вариант')
+    print('Конец работы программы')
