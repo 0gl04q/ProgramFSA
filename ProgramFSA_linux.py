@@ -13,25 +13,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 from openpyxl import load_workbook
 
 
-# функция проверки необходимых файлов
-def check_folders():  # Проверка на существование необходимых папок
-
-    if not os.path.exists(r'/opt/ProgramFSA'):  # Основная папка
-        os.mkdir(r'/opt/ProgramFSA')
-
-    if not os.path.exists(r'/opt/ProgramFSA/Screenshot'):  # Папка скриншотов
-        os.mkdir(r'/opt/ProgramFSA/Screenshot')
-
-    if not os.path.exists(r'/opt/ProgramFSA/File'):  # Папка для файлов выгрузки
-        os.mkdir(r'/opt/ProgramFSA/File')
-
-    folders = ['АТМ', 'МС', 'СПК']  # Создание папок со скриншотами для различных организаций
-
-    for folder in folders:
-        if not os.path.exists(fr'/opt/ProgramFSA/Screenshot/{folder}'):
-            os.mkdir(fr'/opt/ProgramFSA/Screenshot/{folder}')
-
-
 # Запуск программы через Chrome
 def chrome(dir_drive):
     # Подключение Chrome
@@ -74,14 +55,19 @@ def main(driver):
     for file in os.listdir(folder):  # Перебор файлов со сведениями
         name_company = file[:3]
         print(file)
+
+        # Проверка папки для скриншотов + создание
+        if not os.path.exists(fr'/opt/ProgramFSA/Screenshot/{file}'):
+            os.mkdir(fr'/opt/ProgramFSA/Screenshot/{file}')
+
         # Открытие файла Excel
         wb = load_workbook(folder + "/" + file)
         sheet = wb.active
 
         # Ожидание окончания загрузки сайта
         try:
-            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "//div[@data-t='for_metrology']"))
-                                            )
+            WebDriverWait(driver, 20).until(
+                EC.presence_of_element_located((By.XPATH, "//div[@data-t='for_metrology']")))
         except:
             # получение доступа к элементу сайта
             driver.execute_script("arguments[0].click();",
@@ -142,7 +128,7 @@ def main(driver):
                 sheet.cell(row=nom_str, column=11).value)
 
             # Создание скриншота
-            driver.save_screenshot('/opt/ProgramFSA/Screenshot/' + name_company.replace(' ', '') + '/' + str(
+            driver.save_screenshot('/opt/ProgramFSA/Screenshot/' + file + '/' + str(
                 nom_str - 4) + ' ' + str(sheet.cell(row=nom_str, column=4).value.strftime('%d.%m.%Y')) + ' ' +
                                    name_company.replace(' ', '') + ".png")
 
@@ -177,21 +163,26 @@ def main(driver):
 
 
 if __name__ == '__main__':
-    # Проверка существования основных папок
-    check_folders()
 
-    dit_drive = input(r'Введите путь к драйверу("/opt/ProgramFSA/geckodriver"): ')
-    brow = input('Введите предпочитаемый браузер(chrome-1, firefox-2): ')
-    if brow == '2':
-        head_change = input('Выберите режим(Headless-1; Head-2): ')
-        if head_change == '1':
-            firefox(dit_drive, head=True)
-        elif head_change == '2':
-            firefox(dit_drive, head=False)
+    # Инициализация программы
+    init_prog = input('Использовать предустановленные данные?(Да-1, Нет-2): ')
+    if init_prog == 2:
+        dit_drive = input(r'Введите путь к драйверу("/opt/ProgramFSA/geckodriver"): ')
+        brow = input('Введите предпочитаемый браузер(chrome-1, firefox-2): ')
+        if brow == '2':
+            head_change = input('Выберите режим(Headless-1; Head-2): ')
+            if head_change == '1':
+                firefox(dit_drive, head=True)
+            elif head_change == '2':
+                firefox(dit_drive, head=False)
+            else:
+                print('Неверно выбран режим')
+        elif brow == '1':
+            chrome(dit_drive)
         else:
-            print('Неверно выбран режим')
-    elif brow == '1':
-        chrome(dit_drive)
-    else:
-        print('Неверно выбран вариант')
+            print('Неверно выбран вариант')
+    elif init_prog == '1':
+        dit_driver = '/opt/ProgramFSA/geckodriver'
+        firefox(dit_driver, head=True)
+
     print('Конец работы программы')
