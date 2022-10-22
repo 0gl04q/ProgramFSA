@@ -89,7 +89,7 @@ def main(driver):
                                            "//*[@id='metrologyReportForm']/div[2]/div/div[1]/select")).select_by_index(
                     2)
                 driver.find_element(By.XPATH, "//*[@id='metrologyReportForm']/div[2]/div/div[1]/div/input").send_keys(
-                    sheet.cell(row=1, column=1).value)
+                    "0001." + sheet.cell(row=1, column=1).value)
             else:
                 Select(driver.find_element(By.XPATH,
                                            "//*[@id='metrologyReportForm']/div[2]/div/div[1]/select")).select_by_index(
@@ -106,8 +106,11 @@ def main(driver):
                                                                                     column=2).value) + " Зав.№" + str(
                     sheet.cell(row=nom_str, column=3).value))
 
+            str_time = sheet.cell(row=nom_str, column=4).value
+            str_time = str_time.split('.')
+            str_time = str_time[2] + '-' + str_time[1] + '-' + str_time[0]
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[2]/div/div/input").send_keys(
-                sheet.cell(row=nom_str, column=4).value.strftime('%Y-%m-%d'))
+                str_time)
 
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[3]/div/div/input").send_keys(
                 sheet.cell(row=nom_str, column=5).value)
@@ -129,7 +132,7 @@ def main(driver):
 
             # Создание скриншота
             driver.save_screenshot('/opt/ProgramFSA/Screenshot/' + file + '/' + str(
-                nom_str - 4) + ' ' + str(sheet.cell(row=nom_str, column=4).value.strftime('%d.%m.%Y')) + ' ' +
+                nom_str - 4) + ' ' + str(sheet.cell(row=nom_str, column=4).value) + ' ' +
                                    name_company.replace(' ', '') + ".png")
 
             print('Сохранение скриншота заполненного счетчика, строка:', nom_str - 4)
@@ -141,10 +144,12 @@ def main(driver):
 
             i = len(check_str)
 
+            # Цикл переотправки сведений при ошибках сервера
             while i > 0:
                 i = len(
                     driver.find_element(By.XPATH, "//*[@id='metrologyReportForm']/div[3]/div/div/input").get_attribute(
                         "value"))
+                driver.save_screenshot('/opt/ProgramFSA/Screenshot/Скрин.png')
                 if i > 0:
                     driver.execute_script("arguments[0].click();",
                                           driver.find_element(By.XPATH, "//*[@id='metrology-report-submit']"))
