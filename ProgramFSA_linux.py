@@ -106,11 +106,10 @@ def main(driver):
                                                                                     column=2).value) + " Зав.№" + str(
                     sheet.cell(row=nom_str, column=3).value))
 
-            str_time = sheet.cell(row=nom_str, column=4).value
-            str_time = str_time.split('.')
-            str_time = str_time[2] + '-' + str_time[1] + '-' + str_time[0]
+            str_time = sheet.cell(row=nom_str, column=4).value.split('.')
+
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[2]/div/div/input").send_keys(
-                str_time)
+                str_time[2] + '-' + str_time[1] + '-' + str_time[0])
 
             driver.find_element(By.XPATH, "//*[@id='measurementsForm']/div[3]/div/div/input").send_keys(
                 sheet.cell(row=nom_str, column=5).value)
