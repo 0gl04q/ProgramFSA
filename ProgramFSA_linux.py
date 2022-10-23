@@ -57,8 +57,9 @@ def main(driver):
         print(file)
 
         # Проверка папки для скриншотов + создание
-        if not os.path.exists(fr'/opt/ProgramFSA/Screenshot/{file}'):
-            os.mkdir(fr'/opt/ProgramFSA/Screenshot/{file}')
+        file_folder = file.replace('.xlsx', '')
+        if not os.path.exists(fr'/opt/ProgramFSA/Screenshot/{file_folder}'):
+            os.mkdir(fr'/opt/ProgramFSA/Screenshot/{file_folder}')
 
         # Открытие файла Excel
         wb = load_workbook(folder + "/" + file)
@@ -84,7 +85,7 @@ def main(driver):
             Select(driver.find_element(By.NAME, "alType")).select_by_index(3)
 
             # Проверка наименования организации и внесение рег номера аккредитации
-            if name_company == "АТМ":
+            if name_company == 'АТМ' or name_company == 'СПК':
                 Select(driver.find_element(By.XPATH,
                                            "//*[@id='metrologyReportForm']/div[2]/div/div[1]/select")).select_by_index(
                     2)
@@ -148,10 +149,10 @@ def main(driver):
                 i = len(
                     driver.find_element(By.XPATH, "//*[@id='metrologyReportForm']/div[3]/div/div/input").get_attribute(
                         "value"))
-                driver.save_screenshot('/opt/ProgramFSA/Screenshot/Скрин.png')
                 if i > 0:
                     driver.execute_script("arguments[0].click();",
                                           driver.find_element(By.XPATH, "//*[@id='metrology-report-submit']"))
+                    driver.save_screenshot('/opt/ProgramFSA/Screenshot/Скрин_проверки_работы_сайта.png')
                     time.sleep(20)
 
             # Увеличение счетчика строки для прохода по строкам
