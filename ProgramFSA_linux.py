@@ -131,7 +131,7 @@ def main(driver):
                 sheet.cell(row=nom_str, column=11).value)
 
             # Создание скриншота
-            driver.save_screenshot('/opt/ProgramFSA/Screenshot/' + file + '/' + str(
+            driver.save_screenshot('/opt/ProgramFSA/Screenshot/' + file_folder + '/' + str(
                 nom_str - 4) + ' ' + str(sheet.cell(row=nom_str, column=4).value) + ' ' +
                                    name_company.replace(' ', '') + ".png")
 
