@@ -13,30 +13,17 @@ from selenium.webdriver.common.action_chains import ActionChains
 from openpyxl import load_workbook
 
 
-# Запуск программы через Chrome
-def chrome(dir_drive):
-    # Подключение Chrome
-    service = Service(executable_path=dir_drive)
-    driver = webdriver.Chrome(service=service)
-
-    # Уменьшение масштаба
-    driver.get("chrome://settings/")
-    driver.execute_script("chrome.settingsPrivate.setDefaultZoom(0.5)")
-    return main(driver)
-
-
-# Запуск программы через FireFox
-def firefox(dir_drive, head):
+# Функция подключения драйвера
+def fire_fox():
     # Подключение опций
     options = Options()
-    if head:
-        options.headless = True
-        options.add_argument('--window-size=1920,1920')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-gpu')
+    options.headless = True
+    options.add_argument('--window-size=1920,1920')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-gpu')
 
     # Подключение FireFox
-    service = Service(executable_path=dir_drive)
+    service = Service(executable_path='./geckodriver')
     driver = webdriver.Firefox(service=service, options=options)
 
     # Уменьшение масштаба страницы FireFox
@@ -54,7 +41,7 @@ def main(driver):
 
     for file in os.listdir(folder):  # Перебор файлов со сведениями
         name_company = file[:3]
-        print(file)
+        print('Текущий файл: ', file)
 
         # Проверка папки для скриншотов + создание
         file_folder = file.replace('.xlsx', '')
@@ -168,26 +155,8 @@ def main(driver):
 
 
 if __name__ == '__main__':
-
-    # Инициализация программы
-    init_prog = input('Использовать предустановленные данные?(Да-1, Нет-2): ')
-    if init_prog == 2:
-        dit_drive = input(r'Введите путь к драйверу("/opt/ProgramFSA/geckodriver"): ')
-        brow = input('Введите предпочитаемый браузер(chrome-1, firefox-2): ')
-        if brow == '2':
-            head_change = input('Выберите режим(Headless-1; Head-2): ')
-            if head_change == '1':
-                firefox(dit_drive, head=True)
-            elif head_change == '2':
-                firefox(dit_drive, head=False)
-            else:
-                print('Неверно выбран режим')
-        elif brow == '1':
-            chrome(dit_drive)
-        else:
-            print('Неверно выбран вариант')
-    elif init_prog == '1':
-        dit_driver = '/opt/ProgramFSA/geckodriver'
-        firefox(dit_driver, head=True)
-
+    print('Начало работы программы')
+    print('#######################')
+    fire_fox()
+    print('#######################')
     print('Конец работы программы')
