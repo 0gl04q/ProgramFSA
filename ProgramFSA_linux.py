@@ -1,7 +1,7 @@
 import os
 import time
 
-from selenium import webdriver
+from selenium.webdriver import Firefox
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.firefox.service import Service
@@ -24,7 +24,7 @@ def fire_fox():
 
     # Подключение FireFox
     service = Service(executable_path='./geckodriver')
-    driver = webdriver.Firefox(service=service, options=options)
+    driver = Firefox(service=service, options=options)
 
     # Уменьшение масштаба страницы FireFox
     driver.get("about:preferences")
