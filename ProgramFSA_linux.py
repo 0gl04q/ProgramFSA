@@ -1,7 +1,7 @@
 import os
 import time
 
-from selenium.webdriver import Firefox
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.firefox.service import Service
@@ -24,7 +24,7 @@ def fire_fox():
 
     # Подключение FireFox
     service = Service(executable_path='./geckodriver')
-    driver = Firefox(service=service, options=options)
+    driver = webdriver.Firefox(service=service, options=options)
 
     # Уменьшение масштаба страницы FireFox
     driver.get("about:preferences")
@@ -118,11 +118,11 @@ def main(driver):
                 sheet.cell(row=nom_str, column=11).value)
 
             # Создание скриншота
-            driver.save_screenshot('/opt/ProgramFSA/Screenshot/' + file_folder + '/' + str(
-                nom_str - 4) + ' ' + str(sheet.cell(row=nom_str, column=4).value) + ' ' +
-                                   name_company.replace(' ', '') + ".png")
+            # driver.save_screenshot('/opt/ProgramFSA/Screenshot/' + file_folder + '/' + str(
+            #     nom_str - 4) + ' ' + str(sheet.cell(row=nom_str, column=4).value) + ' ' +
+            #                        name_company.replace(' ', '') + ".png")
 
-            print('Сохранение скриншота заполненного счетчика, строка:', nom_str - 4)
+            print('Отправка заполненного счетчика, строка:', nom_str - 4)
 
             # Проверка отправки формы
             check_str = driver.find_element(By.XPATH,
