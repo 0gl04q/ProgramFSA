@@ -44,9 +44,9 @@ def main(driver):
         print('Текущий файл: ', file)
 
         # Проверка папки для скриншотов + создание
-        file_folder = file.replace('.xlsx', '')
-        if not os.path.exists(fr'/opt/ProgramFSA/Screenshot/{file_folder}'):
-            os.mkdir(fr'/opt/ProgramFSA/Screenshot/{file_folder}')
+        # file_folder = file.replace('.xlsx', '')
+        # if not os.path.exists(fr'/opt/ProgramFSA/Screenshot/{file_folder}'):
+        #     os.mkdir(fr'/opt/ProgramFSA/Screenshot/{file_folder}')
 
         # Открытие файла Excel
         wb = load_workbook(folder + "/" + file)
@@ -139,7 +139,7 @@ def main(driver):
                 if i > 0:
                     driver.execute_script("arguments[0].click();",
                                           driver.find_element(By.XPATH, "//*[@id='metrology-report-submit']"))
-                    driver.save_screenshot('/opt/ProgramFSA/Screenshot/Скрин_проверки_работы_сайта.png')
+                    driver.save_screenshot('/opt/ProgramFSA/Скрин_проверки_работы_сайта.png')
                     time.sleep(20)
 
             # Увеличение счетчика строки для прохода по строкам
